@@ -1,0 +1,38 @@
+{
+  "name": "endless-swell",
+  "version": "0.1.0",
+  "description": "RPG 2D de exploración centrado en el surf y los viajes",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jesusrmdev/endless-swell.git"
+  },
+  "author": "jesusrmdev",
+  "license": "MIT",
+  "keywords": [
+    "phaser",
+    "game",
+    "surf",
+    "rpg",
+    "2d"
+  ],
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "eslint": "^10.6.0",
+    "prettier": "^3.9.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.4"
+  }
+}
