@@ -183,6 +183,38 @@ export const SCENE_KEYS = {
 } as const;
 
 /**
+ * Configuración de movimiento
+ */
+export const MOVEMENT_CONFIG = {
+  /** Velocidad de caminar del jugador en píxeles por segundo */
+  PLAYER_WALK_SPEED: 150,
+  /** Velocidad de correr del jugador en píxeles por segundo */
+  PLAYER_RUN_SPEED: 225,
+  /** Aceleración del jugador en píxeles por segundo² */
+  PLAYER_ACCELERATION: 600,
+  /** Desaceleración del jugador en píxeles por segundo² */
+  PLAYER_DECELERATION: 400,
+  /** Multiplicador de velocidad al caminar */
+  WALK_MULTIPLIER: 1,
+  /** Multiplicador de velocidad al correr */
+  RUN_MULTIPLIER: 1.5,
+} as const;
+
+/**
+ * Configuración del jugador
+ */
+export const PLAYER_CONFIG = {
+  /** Ancho del sprite del jugador en píxeles */
+  SPRITE_WIDTH: 16,
+  /** Alto del sprite del jugador en píxeles */
+  SPRITE_HEIGHT: 16,
+  /** Energía inicial */
+  INITIAL_ENERGY: 100,
+  /** Salud inicial */
+  INITIAL_HEALTH: 100,
+} as const;
+
+/**
  * Profundidades de renderizado (z-index)
  */
 export const DEPTHS = {

@@ -44,6 +44,7 @@
 - [Sistema de Events](./event-system.md)
 - [Comunicación entre Engines](./engine-communication.md)
 - [Patrones de Diseño](./design-patterns.md)
+- [Sistema de Movimiento del Jugador](./player-movement.md)
 
 ---
 

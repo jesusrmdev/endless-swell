@@ -44,11 +44,23 @@ export interface SaveConfig {
   autoSaveInterval: number;
 }
 
+export interface MovementConfig {
+  /** Velocidad de caminar en píxeles por segundo */
+  walkSpeed: number;
+  /** Velocidad de correr en píxeles por segundo */
+  runSpeed: number;
+  /** Aceleración en píxeles por segundo² */
+  acceleration: number;
+  /** Desaceleración en píxeles por segundo² */
+  deceleration: number;
+}
+
 export interface AppConfig {
   game: GameConfig;
   physics: PhysicsConfig;
   audio: AudioConfig;
   save: SaveConfig;
+  movement: MovementConfig;
 }
 
 /**
@@ -75,6 +87,12 @@ const DEFAULT_CONFIG: AppConfig = {
     fileName: 'endless-swell-save',
     autoSave: true,
     autoSaveInterval: 300000, // 5 minutos
+  },
+  movement: {
+    walkSpeed: 150,
+    runSpeed: 225,
+    acceleration: 600,
+    deceleration: 400,
   },
 };
 
@@ -161,6 +179,13 @@ export class Config {
   }
 
   /**
+   * Obtiene la configuración de movimiento
+   */
+  getMovementConfig(): MovementConfig {
+    return { ...this.config.movement };
+  }
+
+  /**
    * Actualiza parcialmente la configuración
    * @param partial - Parte de la configuración a actualizar
    */
@@ -172,6 +197,7 @@ export class Config {
       physics: { ...this.config.physics, ...partial.physics },
       audio: { ...this.config.audio, ...partial.audio },
       save: { ...this.config.save, ...partial.save },
+      movement: { ...this.config.movement, ...partial.movement },
     };
   }
 }

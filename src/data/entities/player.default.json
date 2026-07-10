@@ -1,0 +1,30 @@
+{
+  "id": "player",
+  "name": "Jugador",
+  "description": "El personaje principal del juego",
+  "stats": {
+    "health": 100,
+    "maxHealth": 100,
+    "energy": 100,
+    "maxEnergy": 100,
+    "surfSkill": 1,
+    "maxSurfSkill": 10
+  },
+  "movement": {
+    "walkSpeed": 150,
+    "runSpeed": 225,
+    "acceleration": 600,
+    "deceleration": 400
+  },
+  "appearance": {
+    "sprite": "player",
+    "spriteWidth": 16,
+    "spriteHeight": 16,
+    "scale": 1
+  },
+  "spawn": {
+    "x": 640,
+    "y": 360,
+    "map": "world"
+  }
+}
