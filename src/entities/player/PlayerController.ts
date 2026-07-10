@@ -52,6 +52,9 @@ export class PlayerController {
    * @param delta - Tiempo en milisegundos desde el último frame
    */
   update(delta: number): void {
+    // Actualizar input service para leer estado del teclado
+    this.inputService.update(delta);
+
     // Obtener input del usuario
     const inputState = this.inputService.getState();
 
