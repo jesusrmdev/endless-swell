@@ -28,6 +28,7 @@ export class WorldScene extends Phaser.Scene {
   private cameraService!: CameraService;
   private interactionService!: InteractionService;
   private interactionText!: Phaser.GameObjects.Text;
+  private interactionMessageActive = false;
 
   constructor() {
     super({ key: SCENE_KEYS.WORLD });
@@ -296,19 +297,21 @@ export class WorldScene extends Phaser.Scene {
 
     // Check for interaction input
     const inputService = this.playerController.getInputService();
-    if (inputService && inputService.isKeyJustPressed('e')) {
+    if (inputService && inputService.isKeyJustPressed('e') && !this.interactionMessageActive) {
       const result = this.interactionService.interact();
       if (result && result.message) {
         this.showInteractionMessage(result.message);
       }
     }
 
-    // Update interaction message visibility
-    if (this.interactionService.hasInteractionAvailable()) {
-      this.interactionText.setVisible(true);
-      this.interactionText.setText('Presiona [E] para interactuar');
-    } else {
-      this.interactionText.setVisible(false);
+    // Update interaction message visibility (only when no message is active)
+    if (!this.interactionMessageActive) {
+      if (this.interactionService.hasInteractionAvailable()) {
+        this.interactionText.setVisible(true);
+        this.interactionText.setText('Presiona [E] para interactuar');
+      } else {
+        this.interactionText.setVisible(false);
+      }
     }
   }
 
@@ -316,12 +319,13 @@ export class WorldScene extends Phaser.Scene {
    * Muestra un mensaje de interacción
    */
   private showInteractionMessage(message: string): void {
+    this.interactionMessageActive = true;
     this.interactionText.setText(message);
     this.interactionText.setVisible(true);
 
-    // Ocultar después de 2 segundos
     this.time.delayedCall(2000, () => {
       this.interactionText.setVisible(false);
+      this.interactionMessageActive = false;
     });
   }
 
