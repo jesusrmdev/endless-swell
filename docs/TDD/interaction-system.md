@@ -31,7 +31,10 @@ Sistema de interacción general reutilizable. Permite al jugador interactuar con
 ## Archivos Modificados
 
 - `src/entities/player/PlayerController.ts` — Agregado `getInputService()`
-- `src/scenes/WorldScene/WorldScene.ts` — Integrado InteractionService
+- `src/scenes/WorldScene/WorldScene.ts` — Integrado InteractionService + messageActive flag
+- `src/world/TilemapService/TilemapService.ts` — `normalizeProperties()` para formato Phaser 3.60+
+- `scripts/generate-map.py` — Propiedades Tiled en objetos (message en WelcomeSign)
+- `public/assets/maps/murcia/playa-calblanque/playa-calblanque.tmj` — Regenerado con propiedades
 
 ## Arquitectura
 
@@ -76,20 +79,35 @@ destroy(): void
 | Door | DoorAction | Puerta de edificio |
 | SchoolEntrance | SchoolEntranceAction | Entrada escuela de surf |
 
+## Bug Fixes (durante testing)
+
+### 1. Radio de detección insuficiente
+- **Problema**: Radio 32px, jugador spawneaba a 36px del cartel más cercano
+- **Solución**: Radio aumentado a 48px
+
+### 2. Propiedades Tiled no se leían
+- **Problema**: Phaser 3.60+ devuelve propiedades como array `[{name,type,value}]`, no objeto plano
+- **Solución**: `normalizeProperties()` en TilemapService convierte ambos formatos
+
+### 3. Mensaje sobreescrito en mismo frame
+- **Problema**: `showInteractionMessage()` seteaba el texto, luego el prompt lo sobreescritaba inmediatamente
+- **Solución**: Flag `interactionMessageActive` que bloquea el prompt mientras se muestra un mensaje
+
 ## Verificación
 
 - ✅ TypeScript compila sin errores
 - ✅ Build correcto
 - ✅ InteractionService integrado en WorldScene
 - ✅ Objetos interactivos se registran desde mapa
-- ✅ Indicador [E] aparece al acercarse
+- ✅ Indicador [E] aparece al acercarse (radio 48px)
 - ✅ Tecla E ejecuta acciones
-- ✅ Mensajes se muestran en pantalla
+- ✅ Mensajes se muestran durante 2 segundos sin sobreescritura
+- ✅ Propiedades Tiled se leen correctamente (formato array y objeto)
 - ✅ Arquitectura desacoplada
 - ✅ Sistema reutilizable para futuros objetos
 
 ## Git
 
 - **Rama**: `feature/interaction-system`
-- **Commits**: Pendientes
+- **Commits**: `964b05a`, `9e06e13`, `32e28a5`
 - **Esperando**: `MERGE APPROVED`
