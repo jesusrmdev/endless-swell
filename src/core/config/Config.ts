@@ -55,12 +55,28 @@ export interface MovementConfig {
   deceleration: number;
 }
 
+export interface CameraConfig {
+  /** Ancho de la resolución virtual */
+  virtualWidth: number;
+  /** Alto de la resolución virtual */
+  virtualHeight: number;
+  /** Zoom por defecto */
+  defaultZoom: number;
+  /** Velocidad de seguimiento por defecto */
+  defaultFollowLerp: number;
+  /** Ancho de deadzone por defecto */
+  defaultDeadzoneWidth: number;
+  /** Alto de deadzone por defecto */
+  defaultDeadzoneHeight: number;
+}
+
 export interface AppConfig {
   game: GameConfig;
   physics: PhysicsConfig;
   audio: AudioConfig;
   save: SaveConfig;
   movement: MovementConfig;
+  camera: CameraConfig;
 }
 
 /**
@@ -93,6 +109,14 @@ const DEFAULT_CONFIG: AppConfig = {
     runSpeed: 225,
     acceleration: 600,
     deceleration: 400,
+  },
+  camera: {
+    virtualWidth: 256,
+    virtualHeight: 224,
+    defaultZoom: 1,
+    defaultFollowLerp: 0.1,
+    defaultDeadzoneWidth: 80,
+    defaultDeadzoneHeight: 60,
   },
 };
 
@@ -186,6 +210,13 @@ export class Config {
   }
 
   /**
+   * Obtiene la configuración de cámara
+   */
+  getCameraConfig(): CameraConfig {
+    return { ...this.config.camera };
+  }
+
+  /**
    * Actualiza parcialmente la configuración
    * @param partial - Parte de la configuración a actualizar
    */
@@ -198,6 +229,7 @@ export class Config {
       audio: { ...this.config.audio, ...partial.audio },
       save: { ...this.config.save, ...partial.save },
       movement: { ...this.config.movement, ...partial.movement },
+      camera: { ...this.config.camera, ...partial.camera },
     };
   }
 }
