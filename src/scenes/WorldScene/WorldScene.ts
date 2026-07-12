@@ -242,7 +242,7 @@ export class WorldScene extends Phaser.Scene {
           id: obj.name,
           actionType: this.mapObjectTypeToAction(obj),
           position: { x: obj.x, y: obj.y },
-          radius: 32,
+          radius: 48,
           actionData: this.extractActionData(obj),
         };
 
