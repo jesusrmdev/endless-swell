@@ -68,6 +68,57 @@ export const CAMERA_CONFIG = {
 } as const;
 
 /**
+ * Presets de cámara por contexto
+ */
+export const CAMERA_PRESETS = {
+  /** Exploración del mundo exterior */
+  OVERWORLD: {
+    zoom: 1,
+    deadzoneWidth: 80,
+    deadzoneHeight: 60,
+    followLerp: 0.1,
+  },
+  /** Modo surf - zoom más cerrado */
+  SURF: {
+    zoom: 1.2,
+    deadzoneWidth: 100,
+    deadzoneHeight: 80,
+    followLerp: 0.08,
+  },
+  /** Interiores - más cerrado */
+  INTERIOR: {
+    zoom: 1,
+    deadzoneWidth: 60,
+    deadzoneHeight: 50,
+    followLerp: 0.1,
+  },
+  /** Conducción - más perspectiva */
+  VEHICLE: {
+    zoom: 0.8,
+    deadzoneWidth: 120,
+    deadzoneHeight: 100,
+    followLerp: 0.05,
+  },
+  /** Menús - sin seguimiento */
+  MENU: {
+    zoom: 1,
+    deadzoneWidth: 0,
+    deadzoneHeight: 0,
+    followLerp: 0.1,
+  },
+} as const;
+
+/**
+ * Resolución virtual del juego
+ */
+export const VIRTUAL_RESOLUTION = {
+  /** Ancho de la resolución virtual */
+  WIDTH: 256,
+  /** Alto de la resolución virtual */
+  HEIGHT: 224,
+} as const;
+
+/**
  * Configuración de guardado
  */
 export const SAVE_CONFIG = {

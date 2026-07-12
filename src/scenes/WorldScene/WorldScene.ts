@@ -2,7 +2,7 @@
  * WorldScene - Escena del mundo
  *
  * Escena principal de exploración del mundo.
- * preload() carga assets, create() construye el mundo.
+ * Utiliza CameraService para gestión de cámara.
  */
 
 import Phaser from 'phaser';
@@ -13,6 +13,7 @@ import { MovementComponent } from '@components/MovementComponent';
 import { InputService } from '@services/InputService';
 import { TilemapService, MapManager } from '@world/index';
 import type { MapConfig, RegionConfig } from '@world/types';
+import { CameraService, OVERWORLD_PRESET } from '@services/CameraService';
 import playerData from '@data/entities/player.default.json';
 import mapConfigData from '@data/maps/playa-calblanque.json';
 import regionData from '@data/regions/murcia.json';
@@ -22,6 +23,7 @@ export class WorldScene extends Phaser.Scene {
   private playerSprite!: Phaser.GameObjects.Sprite;
   private tilemapService!: TilemapService;
   private mapManager!: MapManager;
+  private cameraService!: CameraService;
 
   constructor() {
     super({ key: SCENE_KEYS.WORLD });
@@ -112,13 +114,25 @@ export class WorldScene extends Phaser.Scene {
       }
     }
 
-    // --- Set camera and world bounds ---
+    // --- Initialize CameraService ---
+    this.cameraService = new CameraService();
+    this.cameraService.initialize(this);
+
+    // --- Set camera bounds from tilemap ---
     const map = this.tilemapService.getPhaserMap();
     if (map) {
-      this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+      this.cameraService.setBounds({
+        x: 0,
+        y: 0,
+        width: map.widthInPixels,
+        height: map.heightInPixels,
+      });
       this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
       console.log(`[WorldScene] Camera bounds: ${map.widthInPixels}x${map.heightInPixels}`);
     }
+
+    // --- Apply OVERWORLD preset ---
+    this.cameraService.setPreset(OVERWORLD_PRESET);
 
     // --- Spawn player ---
     const playerConfig = playerData as PlayerConfig;
@@ -149,8 +163,8 @@ export class WorldScene extends Phaser.Scene {
     );
     this.playerController.initialize(playerConfig);
 
-    // --- Camera follows player ---
-    this.cameras.main.startFollow(this.playerSprite, true, 0.1, 0.1);
+    // --- Camera follows player via CameraService ---
+    this.cameraService.follow(this.playerSprite);
 
     // --- Collision: add physics collider for each collision layer ---
     for (const layerConfig of mapConfig.layers) {
@@ -200,6 +214,9 @@ export class WorldScene extends Phaser.Scene {
     }
     if (this.mapManager) {
       this.mapManager.destroy();
+    }
+    if (this.cameraService) {
+      this.cameraService.destroy();
     }
     console.log('[WorldScene] World scene shutdown');
   }
