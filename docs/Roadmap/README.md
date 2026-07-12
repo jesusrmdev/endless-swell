@@ -4,6 +4,14 @@
 
 Endless Swell se desarrollará por versiones, cada una añadiendo nuevas mecánicas y contenido.
 
+## Git Workflow
+
+- `main` protegida — solo recibe merges aprobados
+- Ramas: `feature/<nombre>`, `fix/<descripcion>`
+- Merge: `git merge --no-ff` (nunca fast-forward)
+- Commits descriptivos: `feat(scope): description`
+- No auto-eliminar ramas después del merge
+
 ## Versiones
 
 ### v0.1 - Fundación ✓
@@ -14,26 +22,34 @@ Endless Swell se desarrollará por versiones, cada una añadiendo nuevas mecáni
 - [x] Engines básicos
 - [x] Escenas básicas
 
-### v0.2 - Movimiento
+### v0.2 - Movimiento ✓
 
-- [ ] Movimiento del jugador
-- [ ] Animaciones básicas
-- [ ] Colisiones
-- [ ] Interacción con objetos
+- [x] Movimiento del jugador (WASD/Flechas)
+- [x] Correr (Shift)
+- [x] InputService con eventos DOM
+- [x] MovementComponent reutilizable
+- [x] PlayerController (entity + movement + input)
+- [x] Datos de jugador data-driven (JSON)
 
-### v0.3 - Cámara
+### v0.3 - World Foundation ✓
 
-- [ ] Sistema de cámara
-- [ ] Seguimiento del jugador
+- [x] TilemapService (wrapper Phaser)
+- [x] MapManager (lógica pura, sin Phaser)
+- [x] Tipos de mundo (RegionConfig, MapConfig, MapMetadata)
+- [x] Primer mapa: Playa de Calblanque (Tiled JSON)
+- [x] Tileset placeholder
+- [x] Colisiones con bordes del mapa
+- [x] Cámara sigue al jugador
+- [x] PlayerSpawn desde mapa
+- [x] ASSETS registry
+- [x] Fix: Phaser SetCollisionByExclusion crash (bounds checking)
+- [x] Fix: player-placeholder en public/assets
+
+### v0.4 - Cámara
+
+- [ ] Sistema de cámara avanzado
 - [ ] Límites del mundo
 - [ ] Transiciones entre áreas
-
-### v0.4 - Mundo
-
-- [ ] Primer mapa (playa)
-- [ ] Tilesets básicos
-- [ ] Colisiones con tilemap
-- [ ] Puntos de interés
 
 ### v0.5 - Conducción
 
@@ -80,4 +96,4 @@ Endless Swell se desarrollará por versiones, cada una añadiendo nuevas mecáni
 
 ---
 
-*Este roadmap será actualizado a medida que se completen las versiones.*
+*Última actualización: 12 de Julio de 2026*
