@@ -22,7 +22,6 @@ export class WorldScene extends Phaser.Scene {
   private playerSprite!: Phaser.GameObjects.Sprite;
   private tilemapService!: TilemapService;
   private mapManager!: MapManager;
-  private useTilemap: boolean = false;
 
   constructor() {
     super({ key: SCENE_KEYS.WORLD });
@@ -38,39 +37,42 @@ export class WorldScene extends Phaser.Scene {
     this.mapManager.initialize();
 
     // Register region and map
-    this.mapManager.registerRegion(regionData as unknown as RegionConfig);
-    this.mapManager.registerMap(mapConfigData as unknown as MapConfig);
+    const regionConfig = regionData as unknown as RegionConfig;
+    const mapConfig = mapConfigData as unknown as MapConfig;
+    this.mapManager.registerRegion(regionConfig);
+    this.mapManager.registerMap(mapConfig);
+    this.mapManager.loadMap(mapConfig.id);
 
     // Initialize TilemapService
     this.tilemapService = new TilemapService();
     this.tilemapService.initialize(this);
 
-    // Try to load the tilemap
-    this.useTilemap = this.tryLoadTilemap();
-
     // Load player data
-    const config = playerData as PlayerConfig;
+    const playerConfig = playerData as PlayerConfig;
 
-    // Determine spawn position
-    let spawnX = config.spawn.x;
-    let spawnY = config.spawn.y;
+    // Create player entity and controller first (no position yet)
+    const playerEntity = new PlayerEntity(playerConfig);
+    const movementComponent = new MovementComponent();
+    const inputService = new InputService();
+    inputService.initialize(this);
 
-    if (this.useTilemap) {
-      const spawnPoint = this.tilemapService.getObjectByName('Objects', 'player-start');
+    // Default spawn from player data
+    let spawnX = playerConfig.spawn.x;
+    let spawnY = playerConfig.spawn.y;
+
+    // Try to load the tilemap
+    const loaded = this.tryLoadTilemap(mapConfig, (spawnPoint) => {
       if (spawnPoint) {
         spawnX = spawnPoint.x;
         spawnY = spawnPoint.y;
       }
-    }
 
-    // Create player entity
-    const playerEntity = new PlayerEntity(config);
-    const movementComponent = new MovementComponent();
-    const inputService = new InputService();
+      // Position player at spawn point
+      this.playerSprite.setPosition(spawnX, spawnY);
+      movementComponent.setPosition({ x: spawnX, y: spawnY });
+    });
 
-    inputService.initialize(this);
-
-    // Create player sprite
+    // Create player sprite at default position
     this.playerSprite = this.add.sprite(spawnX, spawnY, 'player-placeholder');
     this.playerSprite.setDepth(DEPTHS.PLAYER);
 
@@ -80,21 +82,14 @@ export class WorldScene extends Phaser.Scene {
       movementComponent,
       inputService,
     );
+    this.playerController.initialize(playerConfig);
 
-    // Set initial position on the movement component
-    movementComponent.setPosition({ x: spawnX, y: spawnY });
-    this.playerController.initialize(config);
-
-    // Camera setup
-    if (this.useTilemap) {
-      const map = this.tilemapService.getPhaserMap();
-      if (map) {
-        this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-        this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-      }
-    }
-
+    // Camera follows player
     this.cameras.main.startFollow(this.playerSprite, true, 0.1, 0.1);
+
+    if (!loaded) {
+      console.warn('[WorldScene] Tilemap not loaded, using fallback');
+    }
 
     // Instruction text
     const instructionText = this.add.text(
@@ -117,34 +112,58 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  private tryLoadTilemap(): boolean {
+  private tryLoadTilemap(
+    mapConfig: MapConfig,
+    onReady: (spawnPoint: { x: number; y: number } | null) => void,
+  ): boolean {
     try {
-      const mapConfig = mapConfigData as unknown as MapConfig;
+      // Asset paths relative to public/ directory
+      const basePath = `assets/maps/${mapConfig.directory}`;
+      const tilemapUrl = `${basePath}/${mapConfig.tilemapKey}.tmj`;
+      const tilesetUrl = `assets/tilesets/${mapConfig.tilesets[0].imageKey}.png`;
 
-      // Load tilemap JSON
-      this.load.tilemapTiledJSON(mapConfig.tilemapKey, `maps/${mapConfig.directory}/${mapConfig.tilemapKey}.tmj`);
+      console.log(`[WorldScene] Loading tilemap: ${tilemapUrl}`);
+      console.log(`[WorldScene] Loading tileset: ${tilesetUrl}`);
 
-      // Load tileset images
+      // Queue assets
+      this.load.tilemapTiledJSON(mapConfig.tilemapKey, tilemapUrl);
       for (const tileset of mapConfig.tilesets) {
-        this.load.image(tileset.imageKey, `tilesets/${tileset.imageKey}.png`);
+        this.load.image(tileset.imageKey, `assets/tilesets/${tileset.imageKey}.png`);
       }
 
-      this.load.once('complete', () => {
-        this.onMapLoaded(mapConfig);
+      // Wait for all assets to load, then build the map
+      this.load.once('filecomplete-tilemaptilemapTiledJSON-' + mapConfig.tilemapKey, () => {
+        console.log(`[WorldScene] Tilemap JSON loaded: ${mapConfig.tilemapKey}`);
       });
 
+      this.load.once('filecomplete-image-' + mapConfig.tilesets[0].imageKey, () => {
+        console.log(`[WorldScene] Tileset image loaded: ${mapConfig.tilesets[0].imageKey}`);
+      });
+
+      this.load.once('complete', () => {
+        console.log('[WorldScene] All assets loaded, building map...');
+        this.buildTilemap(mapConfig, onReady);
+      });
+
+      this.load.on('loaderror', (file: Phaser.Loader.File) => {
+        console.error(`[WorldScene] Failed to load: ${file.key} (${file.url})`);
+      });
+
+      // Start loading
       this.load.start();
 
       return true;
-    } catch {
-      console.warn('[WorldScene] Could not load tilemap, using fallback');
+    } catch (e) {
+      console.error('[WorldScene] Error setting up tilemap load:', e);
       return false;
     }
   }
 
-  private onMapLoaded(mapConfig: MapConfig): void {
-    this.mapManager.loadMap(mapConfig.id);
-
+  private buildTilemap(
+    mapConfig: MapConfig,
+    onReady: (spawnPoint: { x: number; y: number } | null) => void,
+  ): void {
+    // Create tilemap from loaded data
     this.tilemapService.loadMap(
       mapConfig.tilemapKey,
       mapConfig.tilesets.map((ts) => ({
@@ -164,17 +183,34 @@ export class WorldScene extends Phaser.Scene {
 
         // Set up collisions for Collision layer
         if (layerConfig.collisionEnabled) {
+          // Exclude tile index 0 (empty). All other tiles will collide.
           this.tilemapService.setCollisionByExclusion(layerConfig.name, [0]);
 
           const phaserLayer = this.tilemapService.getPhaserLayer(layerConfig.name);
           if (phaserLayer && this.playerSprite) {
             this.physics.add.collider(this.playerSprite, phaserLayer);
+            console.log(`[WorldScene] Collision layer enabled: ${layerConfig.name}`);
           }
         }
       }
     }
 
-    console.log('[WorldScene] Tilemap loaded successfully');
+    // Set camera and world bounds
+    const map = this.tilemapService.getPhaserMap();
+    if (map) {
+      this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+      this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+      console.log(`[WorldScene] Camera bounds: ${map.widthInPixels}x${map.heightInPixels}`);
+    }
+
+    // Get spawn point from Objects layer
+    const spawnPoint = this.tilemapService.getObjectByName('Objects', 'player-start');
+    if (spawnPoint) {
+      console.log(`[WorldScene] Player spawn: (${spawnPoint.x}, ${spawnPoint.y})`);
+    }
+
+    onReady(spawnPoint);
+    console.log('[WorldScene] Tilemap built successfully');
   }
 
   update(_time: number, delta: number): void {
