@@ -2,11 +2,27 @@
 
 ## Estado
 
-✅ **COMPLETADA** — Esperando aprobación para merge
+✅ **COMPLETADA Y CERRADA**
 
 ## Resumen
 
-Sistema de cámara y presentación profesional inspirado en Pokémon Game Boy Color. Incluye resolución virtual, presets de cámara, y sistema de transiciones.
+Infraestructura del sistema de cámara y presentación profesional. **Esta SPEC construye únicamente la base arquitectónica.** No introduce cambios visuales ni mecánicas nuevas.
+
+Los sistemas creados comenzarán a utilizarse cuando las futuras SPECs los requieran:
+- **Surf** → CameraPreset SURF
+- **Interiores** → TransitionService + CameraPreset INTERIOR
+- **Conducción** → CameraPreset VEHICLE
+- **Cinemáticas** → CameraService + TransitionService
+- **Transiciones entre mapas** → TransitionService
+
+## Objetivo
+
+Construir la infraestructura preparada para:
+- Resolución virtual pixel-perfect (256x224)
+- Presets de cámara por contexto
+- Sistema de transiciones (fade, wipe)
+- Efectos de cámara (shake, flash)
+- Adaptación a distintos modos de juego
 
 ## Archivos Creados
 
@@ -35,33 +51,22 @@ Sistema de cámara y presentación profesional inspirado en Pokémon Game Boy Co
 
 ## Arquitectura
 
-### Flujo de Datos
-
-```
-Game Logic → VirtualResolution (256x224) → RenderTexture → Screen
-                       ↑
-               CameraService
-               (follow, bounds, zoom)
-```
-
 ### Presets de Cámara
 
-| Preset | Zoom | Deadzone | Lerp | Uso |
-|--------|------|----------|------|-----|
-| OVERWORLD | 1.0 | 80x60 | 0.1 | Exploración normal |
-| SURF | 1.2 | 100x80 | 0.08 | Modo surf |
-| INTERIOR | 1.0 | 60x50 | 0.1 | Edificios |
-| VEHICLE | 0.8 | 120x100 | 0.05 | Conducción |
-| MENU | 1.0 | 0x0 | 0.1 | Menús |
+| Preset | Zoom | Deadzone | Lerp | Uso Futuro |
+|--------|------|----------|------|------------|
+| OVERWORLD | 1.0 | 80x60 | 0.1 | Exploración (ya activo) |
+| SURF | 1.2 | 100x80 | 0.08 | Modo surf (SPEC surf) |
+| INTERIOR | 1.0 | 60x50 | 0.1 | Edificios (SPEC interiores) |
+| VEHICLE | 0.8 | 120x100 | 0.05 | Conducción (SPEC conducción) |
+| MENU | 1.0 | 0x0 | 0.1 | Menús (futuro) |
 
 ### CameraService API
 
 ```typescript
 initialize(scene: Phaser.Scene): void
 setPreset(preset: CameraPreset): void
-getCurrentPreset(): CameraPreset
 follow(target: Phaser.GameObjects.Sprite): void
-stopFollow(): void
 setBounds(bounds: CameraBounds): void
 setZoom(zoom: number): void
 shake(duration?: number, intensity?: number): void
@@ -81,37 +86,26 @@ isTransitioning(): boolean
 destroy(): void
 ```
 
-### VirtualResolution
-
-- Resolución virtual: 256x224 píxeles
-- RenderTexture a resolución virtual
-- Escalado automático a tamaño de pantalla
-- Pixel perfect rendering sin distorsión
-
 ## Verificación
 
 - ✅ TypeScript compila sin errores
 - ✅ Build correcto
-- ✅ CameraService integrado en WorldScene
-- ✅ Preset OVERWORLD aplicado por defecto
-- ✅ Bounds de cámara desde tilemap
-- ✅ Seguimiento de jugador via CameraService
-- ✅ Limpieza de recursos en shutdown
+- ✅ CameraService integrado en WorldScene (preset OVERWORLD activo)
 - ✅ Arquitectura desacoplada de Phaser
-- ✅ Preparado para surf, interiores, conducción
+- ✅ Infraestructura lista para uso en futuras SPECs
 
-## Preparación para Futuros Sistemas
+## Nota sobre Visibilidad
 
-| Sistema | Cómo se Integra |
-|---------|-----------------|
-| Surf | `CameraService.setPreset(SURF)` |
-| Interior | `TransitionService.fadeToBlack()` + bounds + `INTERIOR` |
-| Conducción | `CameraService.setPreset(VEHICLE)` |
-| Cinemáticas | Extensión futura de CameraService |
-| Transiciones | `TransitionService.transitionToMap()` |
+**No hay cambios visuales en esta SPEC.** Esto es intencional.
+
+La infraestructura existe para ser utilizada progresivamente:
+- Las transiciones se activarán al cambiar de mapa
+- Los presets de zoom se aplicarán al entrar en agua/edificios
+- Los efectos de cámara se usarán en eventos específicos
+- La resolución virtual se activará cuando se necesite pixel-perfect rendering
 
 ## Git
 
 - **Rama**: `feature/camera-presentation-system`
-- **Commits**: Pendientes
-- **Esperando**: `MERGE APPROVED`
+- **Commit**: `ac5f90b`
+- **Estado**: Cerrada, pendiente de merge
