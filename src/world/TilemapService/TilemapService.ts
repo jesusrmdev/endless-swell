@@ -3,6 +3,7 @@
  *
  * Wrapper de Phaser para gestionar tilemaps de Tiled.
  * Único componente del sistema de mapas que depende de Phaser.
+ * NO inicia cargas de assets — únicamente construye desde recursos ya disponibles.
  */
 
 import type { ITilemapService } from './interfaces';
@@ -30,19 +31,43 @@ export class TilemapService implements ITilemapService {
 
     this.clearMap();
 
-    this.currentMap = this.scene.make.tilemap({ key: tilemapKey });
+    // Validate tilemap exists in cache
+    const tilemapData = this.scene.cache.tilemap.get(tilemapKey);
+    if (!tilemapData) {
+      console.error(`[TilemapService] Tilemap "${tilemapKey}" not found in cache. Was it loaded in preload()?`);
+      return;
+    }
 
+    this.currentMap = this.scene.make.tilemap({ key: tilemapKey });
+    if (!this.currentMap) {
+      console.error(`[TilemapService] Failed to create tilemap from key "${tilemapKey}". Data may be invalid.`);
+      return;
+    }
+
+    console.log(`[TilemapService] Tilemap created: ${tilemapKey} (${this.currentMap.width}x${this.currentMap.height})`);
+
+    // Add tilesets
     for (const config of tilesetConfigs) {
+      if (!this.scene.textures.exists(config.imageKey)) {
+        console.error(`[TilemapService] Tileset image "${config.imageKey}" not found in texture cache. Was it loaded in preload()?`);
+        continue;
+      }
+
       const tileset = this.currentMap.addTilesetImage(
         config.tiledName,
         config.imageKey,
       );
       if (tileset) {
         this.tilesets.set(config.tiledName, tileset);
+        console.log(`[TilemapService] Tileset added: "${config.tiledName}" → texture "${config.imageKey}"`);
+      } else {
+        console.error(`[TilemapService] Failed to add tileset "${config.tiledName}". Check the name matches Tiled exactly.`);
       }
     }
 
-    console.log(`[TilemapService] Map loaded: ${tilemapKey}`);
+    if (this.tilesets.size === 0) {
+      console.error('[TilemapService] No tilesets were added. Layers will not render.');
+    }
   }
 
   createTilemapLayer(
@@ -51,7 +76,7 @@ export class TilemapService implements ITilemapService {
     depth: number,
   ): void {
     if (!this.currentMap) {
-      console.error('[TilemapService] No map loaded');
+      console.error('[TilemapService] Cannot create layer: no map loaded');
       return;
     }
 
@@ -60,7 +85,7 @@ export class TilemapService implements ITilemapService {
       .filter((t): t is Phaser.Tilemaps.Tileset => t !== undefined);
 
     if (tilesets.length === 0) {
-      console.error(`[TilemapService] No tilesets found for layer: ${layerName}`);
+      console.error(`[TilemapService] No tilesets available for layer "${layerName}". Check addTilesetImage calls.`);
       return;
     }
 
@@ -68,6 +93,9 @@ export class TilemapService implements ITilemapService {
     if (layer) {
       layer.setDepth(depth);
       this.layers.set(layerName, layer);
+      console.log(`[TilemapService] Layer created: "${layerName}" (depth=${depth})`);
+    } else {
+      console.error(`[TilemapService] Failed to create layer "${layerName}". Check the layer name matches Tiled exactly.`);
     }
   }
 
