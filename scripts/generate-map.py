@@ -256,7 +256,14 @@ def create_object_layer():
             "x": 17 * TILE_SIZE,
             "y": 14 * TILE_SIZE,
             "width": TILE_SIZE,
-            "height": TILE_SIZE
+            "height": TILE_SIZE,
+            "properties": [
+                {
+                    "name": "message",
+                    "type": "string",
+                    "value": "Bienvenido a Playa de Calblanque — ¡disfruta del surf!"
+                }
+            ]
         }
     ]
     return objects

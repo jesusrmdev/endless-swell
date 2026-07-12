@@ -2,7 +2,7 @@
  * WorldScene - Escena del mundo
  *
  * Escena principal de exploración del mundo.
- * Utiliza CameraService para gestión de cámara.
+ * Utiliza CameraService y InteractionService.
  */
 
 import Phaser from 'phaser';
@@ -12,8 +12,10 @@ import type { PlayerConfig } from '@entities/player/types';
 import { MovementComponent } from '@components/MovementComponent';
 import { InputService } from '@services/InputService';
 import { TilemapService, MapManager } from '@world/index';
-import type { MapConfig, RegionConfig } from '@world/types';
+import type { MapConfig, RegionConfig, MapObject } from '@world/types';
 import { CameraService, OVERWORLD_PRESET } from '@services/CameraService';
+import { InteractionService } from '@services/InteractionService';
+import type { InteractiveObject } from '@services/InteractionService';
 import playerData from '@data/entities/player.default.json';
 import mapConfigData from '@data/maps/playa-calblanque.json';
 import regionData from '@data/regions/murcia.json';
@@ -24,6 +26,9 @@ export class WorldScene extends Phaser.Scene {
   private tilemapService!: TilemapService;
   private mapManager!: MapManager;
   private cameraService!: CameraService;
+  private interactionService!: InteractionService;
+  private interactionText!: Phaser.GameObjects.Text;
+  private interactionMessageActive = false;
 
   constructor() {
     super({ key: SCENE_KEYS.WORLD });
@@ -177,11 +182,36 @@ export class WorldScene extends Phaser.Scene {
       }
     }
 
+    // --- Initialize InteractionService ---
+    this.interactionService = new InteractionService();
+    this.interactionService.initialize(this);
+
+    // --- Register interactive objects from map ---
+    this.registerInteractiveObjects();
+
+    // --- Interaction text display ---
+    this.interactionText = this.add.text(
+      this.cameras.main.width / 2,
+      this.cameras.main.height - 30,
+      '',
+      {
+        fontFamily: 'Arial',
+        fontSize: '14px',
+        color: '#ffffff',
+        backgroundColor: '#000000',
+        padding: { x: 8, y: 4 },
+      },
+    );
+    this.interactionText.setOrigin(0.5, 0.5);
+    this.interactionText.setScrollFactor(0);
+    this.interactionText.setDepth(DEPTHS.UI);
+    this.interactionText.setVisible(false);
+
     // --- UI overlay ---
     const instructionText = this.add.text(
       this.cameras.main.width / 2,
       this.cameras.main.height / 2,
-      'Flechas/WASD: Mover | SHIFT: Correr | ESC: Volver al menú',
+      'Flechas/WASD: Mover | SHIFT: Correr | E: Interactuar | ESC: Volver al menú',
       {
         fontFamily: 'Arial',
         fontSize: '12px',
@@ -199,10 +229,104 @@ export class WorldScene extends Phaser.Scene {
     console.log('[WorldScene] World built successfully');
   }
 
+  /**
+   * Registra objetos interactivos desde el mapa
+   */
+  private registerInteractiveObjects(): void {
+    const mapObjects = this.tilemapService.getObjectsFromLayer('Objects');
+
+    const interactiveTypes = ['WelcomeSign', 'Door', 'SchoolEntrance'];
+
+    for (const obj of mapObjects) {
+      if (interactiveTypes.includes(obj.type)) {
+        const interactiveObj: InteractiveObject = {
+          id: obj.name,
+          actionType: this.mapObjectTypeToAction(obj),
+          position: { x: obj.x, y: obj.y },
+          radius: 48,
+          actionData: this.extractActionData(obj),
+        };
+
+        this.interactionService.registerObject(interactiveObj);
+      }
+    }
+  }
+
+  /**
+   * Mapea tipo de objeto del mapa a tipo de acción
+   */
+  private mapObjectTypeToAction(obj: MapObject): 'sign' | 'door' | 'school_entrance' {
+    switch (obj.type) {
+      case 'WelcomeSign':
+        return 'sign';
+      case 'Door':
+        return 'door';
+      case 'SchoolEntrance':
+        return 'school_entrance';
+      default:
+        return 'sign';
+    }
+  }
+
+  /**
+   * Extrae datos de acción desde el objeto del mapa
+   */
+  private extractActionData(obj: MapObject): Record<string, unknown> {
+    const data: Record<string, unknown> = {};
+
+    if (obj.properties) {
+      if (obj.properties.message) {
+        data.message = obj.properties.message;
+      }
+      if (obj.properties.targetMap) {
+        data.targetMap = obj.properties.targetMap;
+      }
+    }
+
+    return data;
+  }
+
   update(_time: number, delta: number): void {
+    // Update player movement
     this.playerController.update(delta);
     const position = this.playerController.getPosition();
     this.playerSprite.setPosition(position.x, position.y);
+
+    // Update interaction service
+    this.interactionService.update(position, delta);
+
+    // Check for interaction input
+    const inputService = this.playerController.getInputService();
+    if (inputService && inputService.isKeyJustPressed('e') && !this.interactionMessageActive) {
+      const result = this.interactionService.interact();
+      if (result && result.message) {
+        this.showInteractionMessage(result.message);
+      }
+    }
+
+    // Update interaction message visibility (only when no message is active)
+    if (!this.interactionMessageActive) {
+      if (this.interactionService.hasInteractionAvailable()) {
+        this.interactionText.setVisible(true);
+        this.interactionText.setText('Presiona [E] para interactuar');
+      } else {
+        this.interactionText.setVisible(false);
+      }
+    }
+  }
+
+  /**
+   * Muestra un mensaje de interacción
+   */
+  private showInteractionMessage(message: string): void {
+    this.interactionMessageActive = true;
+    this.interactionText.setText(message);
+    this.interactionText.setVisible(true);
+
+    this.time.delayedCall(2000, () => {
+      this.interactionText.setVisible(false);
+      this.interactionMessageActive = false;
+    });
   }
 
   shutdown(): void {
@@ -217,6 +341,9 @@ export class WorldScene extends Phaser.Scene {
     }
     if (this.cameraService) {
       this.cameraService.destroy();
+    }
+    if (this.interactionService) {
+      this.interactionService.destroy();
     }
     console.log('[WorldScene] World scene shutdown');
   }

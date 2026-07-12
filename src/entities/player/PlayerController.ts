@@ -119,6 +119,13 @@ export class PlayerController {
   }
 
   /**
+   * Obtiene el servicio de entrada
+   */
+  getInputService(): IInputService {
+    return this.inputService;
+  }
+
+  /**
    * Limpia recursos
    */
   destroy(): void {

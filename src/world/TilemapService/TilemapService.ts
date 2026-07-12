@@ -163,8 +163,33 @@ export class TilemapService implements ITilemapService {
       y: obj.y ?? 0,
       width: obj.width,
       height: obj.height,
-      properties: obj.properties as Record<string, unknown> | undefined,
+      properties: this.normalizeProperties(obj.properties),
     }));
+  }
+
+  /**
+   * Normaliza propiedades de Tiled a un objeto plano.
+   * Phaser 3.60+ con Tiled 1.9+ usa array [{name, type, value}].
+   * Formato antiguo usa objeto plano {key: value}.
+   */
+  private normalizeProperties(properties: unknown): Record<string, unknown> | undefined {
+    if (!properties) return undefined;
+
+    if (Array.isArray(properties)) {
+      const result: Record<string, unknown> = {};
+      for (const prop of properties) {
+        if (prop && typeof prop === 'object' && 'name' in prop && 'value' in prop) {
+          result[prop.name] = prop.value;
+        }
+      }
+      return Object.keys(result).length > 0 ? result : undefined;
+    }
+
+    if (typeof properties === 'object') {
+      return properties as Record<string, unknown>;
+    }
+
+    return undefined;
   }
 
   getObjectByName(layerName: string, objectName: string): MapObject | null {

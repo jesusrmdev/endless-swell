@@ -4904,7 +4904,14 @@
           "x": 272,
           "y": 224,
           "width": 16,
-          "height": 16
+          "height": 16,
+          "properties": [
+            {
+              "name": "message",
+              "type": "string",
+              "value": "Bienvenido a Playa de Calblanque \u2014 \u00a1disfruta del surf!"
+            }
+          ]
         }
       ],
       "opacity": 1,
