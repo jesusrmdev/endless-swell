@@ -20,6 +20,18 @@
       "collisionEnabled": false
     },
     {
+      "name": "Water",
+      "type": "tilemap",
+      "depth": 20,
+      "collisionEnabled": true
+    },
+    {
+      "name": "Decoration",
+      "type": "tilemap",
+      "depth": 25,
+      "collisionEnabled": false
+    },
+    {
       "name": "Collision",
       "type": "tilemap",
       "depth": 10,
@@ -32,6 +44,6 @@
       "collisionEnabled": false
     }
   ],
-  "widthInPixels": 160,
-  "heightInPixels": 160
+  "widthInPixels": 640,
+  "heightInPixels": 480
 }
