@@ -106,11 +106,48 @@ export class TilemapService implements ITilemapService {
     }
   }
 
+  /**
+   * Set collision on all tiles whose index is NOT in the excludedIndices array.
+   *
+   * Phaser's built-in setCollisionByExclusion has a bug where layer.data can have
+   * fewer rows than layer.height, causing an undefined access crash. This implementation
+   * iterates directly on the LayerData with bounds checking.
+   */
   setCollisionByExclusion(layerName: string, excludedIndices: number[]): void {
-    const layer = this.layers.get(layerName);
-    if (layer) {
-      layer.setCollisionByExclusion(excludedIndices);
+    if (!this.currentMap) {
+      console.error('[TilemapService] Cannot set collision: no map loaded');
+      return;
     }
+
+    const layerIndex = this.currentMap.getLayerIndex(layerName);
+    if (layerIndex === null) {
+      console.error(`[TilemapService] Layer "${layerName}" not found in tilemap`);
+      return;
+    }
+
+    const layerData = this.currentMap.layers[layerIndex];
+    if (!layerData || !layerData.data) {
+      console.error(`[TilemapService] LayerData for "${layerName}" has no data`);
+      return;
+    }
+
+    let collisionCount = 0;
+
+    for (let ty = 0; ty < layerData.height; ty++) {
+      if (!layerData.data[ty]) continue;
+      for (let tx = 0; tx < layerData.width; tx++) {
+        const tile = layerData.data[ty][tx];
+        if (tile && excludedIndices.indexOf(tile.index) === -1) {
+          tile.setCollision(true, true, true, true, false);
+          if (layerData.collideIndexes.indexOf(tile.index) === -1) {
+            layerData.collideIndexes.push(tile.index);
+          }
+          collisionCount++;
+        }
+      }
+    }
+
+    console.log(`[TilemapService] Collision set on ${collisionCount} tiles in "${layerName}"`);
   }
 
   getObjectsFromLayer(layerName: string): MapObject[] {
