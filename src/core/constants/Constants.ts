@@ -229,3 +229,36 @@ export const DEPTHS = {
   UI: 100,
   DEBUG: 200,
 } as const;
+
+/**
+ * Configuración de mapas
+ */
+export const MAP_CONFIG = {
+  /** Tamaño de tile por defecto en píxeles */
+  DEFAULT_TILE_SIZE: 16,
+  /** Nombre de la capa de colisiones por defecto */
+  COLLISION_LAYER_NAME: 'Collision',
+  /** Nombre de la capa de interacción por defecto */
+  INTERACTION_LAYER_NAME: 'Interaction',
+  /** Nombre de la capa de navegación por defecto */
+  NAVIGATION_LAYER_NAME: 'Navigation',
+  /** Nombre de la capa de agua por defecto */
+  WATER_LAYER_NAME: 'Water',
+  /** Nombre de la capa de objetos por defecto */
+  OBJECTS_LAYER_NAME: 'Objects',
+  /** Índice de tile vacío */
+  EMPTY_TILE_INDEX: -1,
+} as const;
+
+/**
+ * Nombres de capas del mapa
+ */
+export const MAP_LAYERS = {
+  GROUND: 'Ground',
+  COLLISION: 'Collision',
+  INTERACTION: 'Interaction',
+  NAVIGATION: 'Navigation',
+  WATER: 'Water',
+  OBJECTS: 'Objects',
+  FOREGROUND: 'Foreground',
+} as const;

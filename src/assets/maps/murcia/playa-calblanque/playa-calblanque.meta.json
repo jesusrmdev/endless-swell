@@ -1,0 +1,23 @@
+{
+  "mapId": "murcia/playa-calblanque",
+  "name": "Playa de Calblanque",
+  "regionId": "murcia",
+  "zoneType": "beach",
+  "climate": "mediterranean",
+  "music": "ambient-beach",
+  "vehiclesAllowed": "van",
+  "connections": [],
+  "weatherProfile": {
+    "rainProbability": 0.1,
+    "windProbability": 0.4,
+    "averageTemperature": {
+      "spring": 18,
+      "summer": 30,
+      "autumn": 22,
+      "winter": 12
+    },
+    "seaConditions": "moderate"
+  },
+  "sunriseHour": 7,
+  "sunsetHour": 21
+}

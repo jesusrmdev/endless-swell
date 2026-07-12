@@ -1,0 +1,37 @@
+{
+  "id": "murcia/playa-calblanque",
+  "name": "Playa de Calblanque",
+  "tilemapKey": "playa-calblanque",
+  "directory": "murcia/playa-calblanque",
+  "tilesets": [
+    {
+      "tiledName": "terrain-placeholder",
+      "imageKey": "terrain-placeholder",
+      "imagePath": "tilesets/terrain-placeholder.png",
+      "tileWidth": 16,
+      "tileHeight": 16
+    }
+  ],
+  "layers": [
+    {
+      "name": "Ground",
+      "type": "tilemap",
+      "depth": 10,
+      "collisionEnabled": false
+    },
+    {
+      "name": "Collision",
+      "type": "tilemap",
+      "depth": 10,
+      "collisionEnabled": true
+    },
+    {
+      "name": "Objects",
+      "type": "object",
+      "depth": 30,
+      "collisionEnabled": false
+    }
+  ],
+  "widthInPixels": 160,
+  "heightInPixels": 160
+}

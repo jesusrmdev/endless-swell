@@ -45,6 +45,7 @@
 - [Comunicación entre Engines](./engine-communication.md)
 - [Patrones de Diseño](./design-patterns.md)
 - [Sistema de Movimiento del Jugador](./player-movement.md)
+- [Sistema de Mapas y Regiones](./world-foundation.md)
 
 ---
 

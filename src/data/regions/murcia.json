@@ -1,0 +1,6 @@
+{
+  "id": "murcia",
+  "name": "Región de Murcia",
+  "description": "Costa mediterránea con playas de arena y acantilados. Clima cálido y soleado.",
+  "maps": ["murcia/playa-calblanque"]
+}
