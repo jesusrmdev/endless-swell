@@ -53,34 +53,43 @@ Endless Swell se desarrollará por versiones, cada una añadiendo nuevas mecáni
 - [x] Zonas: bosque, camino, playa, océano, escuela de surf, parking
 - [x] Generadores de tileset y mapa para reproducibilidad
 
-### v0.5 - Camera & Presentation System (SPEC-004)
+### v0.5 - Camera & Presentation System (SPEC-004) ✓
 
-- [ ] Sistema de cámara avanzado
-- [ ] Pixel Perfect Rendering
-- [ ] Resolución virtual y escalado
-- [ ] Zoom configurable
-- [ ] Adaptación a distintas resoluciones
-- [ ] Preparación para transiciones entre mapas
-- [ ] Preparación para cinemáticas
-- [ ] Preparación para escenas interiores
-- [ ] Preparación para modo surf
-- [ ] Preparación para conducción de camper
+- [x] Sistema de cámara avanzado (CameraService con presets)
+- [x] Pixel Perfect Rendering (VirtualResolution 256x224)
+- [x] Resolución virtual y escalado
+- [x] Zoom configurable
+- [x] Preparación para transiciones (TransitionService: Fade, Wipe)
+- [x] Preparación para cinemáticas
+- [x] Preparación para escenas interiores
+- [x] Preparación para modo surf
+- [x] Preparación para conducción de camper
 
-### v0.6 - Conducción
+### v0.6 - Interaction System (SPEC-005) ✓
+
+- [x] InteractionComponent reutilizable
+- [x] InteractionService: detección de proximidad (48px radio)
+- [x] Indicador [E] sobre objetos cercanos
+- [x] Tecla E ejecuta acciones
+- [x] Acciones: SignAction, DoorAction (stub), SchoolEntranceAction (stub)
+- [x] Propiedades Tiled se leen correctamente (Phaser 3.60+)
+- [x] Mensajes en pantalla con duración configurable
+
+### v0.7 - Conducción
 
 - [ ] Vehículo (furgoneta)
 - [ ] Física de conducción
 - [ ] Carreteras y mapas
 - [ ] Combustible
 
-### v0.7 - NPC
+### v0.8 - NPC
 
 - [ ] Sistema de NPCs
 - [ ] Diálogos básicos
 - [ ] Interacciones
 - [ ] Comportamientos simples
 
-### v0.8 - Inventario
+### v0.9 - Inventario
 
 - [ ] Sistema de inventario
 - [ ] Tablas de surf

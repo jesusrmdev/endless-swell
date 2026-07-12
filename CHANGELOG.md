@@ -6,6 +6,25 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
+## [0.5.0] - 2026-07-12
+
+### Added
+
+- InteractionComponent: componente reutilizable para objetos interactivos
+- InteractionService: detección de proximidad, indicador [E], ejecución de acciones
+- Acciones: SignAction (cartel), DoorAction (stub), SchoolEntranceAction (stub)
+- normalizeProperties() en TilemapService para formato Phaser 3.60+
+- Propiedades Tiled en objetos del mapa (message en WelcomeSign)
+- Flag interactionMessageActive para evitar sobreescritura de mensajes
+
+### Changed
+
+- Radio de interacción: 32px → 48px para mejor descubrimiento
+- PlayerController: agregado getInputService()
+- generate-map.py: objetos con propiedades Tiled
+
+---
+
 ## [0.4.0] - 2026-07-12
 
 ### Added
