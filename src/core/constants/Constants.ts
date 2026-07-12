@@ -262,3 +262,16 @@ export const MAP_LAYERS = {
   OBJECTS: 'Objects',
   FOREGROUND: 'Foreground',
 } as const;
+
+/**
+ * Rutas de assets del juego
+ * Single source of truth para keys de Phaser y paths de carga
+ */
+export const ASSETS = {
+  SPRITES: {
+    PLAYER: {
+      KEY: 'player-placeholder',
+      PATH: 'assets/sprites/player-placeholder.png',
+    },
+  },
+} as const;

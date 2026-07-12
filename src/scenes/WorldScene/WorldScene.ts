@@ -6,7 +6,7 @@
  */
 
 import Phaser from 'phaser';
-import { SCENE_KEYS, DEPTHS } from '@core/constants/Constants';
+import { SCENE_KEYS, DEPTHS, ASSETS } from '@core/constants/Constants';
 import { PlayerEntity, PlayerController } from '@entities/player';
 import type { PlayerConfig } from '@entities/player/types';
 import { MovementComponent } from '@components/MovementComponent';
@@ -41,6 +41,10 @@ export class WorldScene extends Phaser.Scene {
       console.log(`[WorldScene] preload: loading tileset → ${tilesetUrl}`);
       this.load.image(tileset.imageKey, tilesetUrl);
     }
+
+    // Load player sprite
+    console.log(`[WorldScene] preload: loading player sprite → ${ASSETS.SPRITES.PLAYER.PATH}`);
+    this.load.image(ASSETS.SPRITES.PLAYER.KEY, ASSETS.SPRITES.PLAYER.PATH);
 
     // Validate loading errors
     this.load.on('loaderror', (file: Phaser.Loader.File) => {
@@ -129,6 +133,13 @@ export class WorldScene extends Phaser.Scene {
       console.warn(`[WorldScene] No PlayerSpawn found, using default: (${spawnX}, ${spawnY})`);
     }
 
+    // Validate player texture exists
+    const playerTextureKey = ASSETS.SPRITES.PLAYER.KEY;
+    if (!this.textures.exists(playerTextureKey)) {
+      console.error(`[WorldScene] ABORT: player texture "${playerTextureKey}" not found in cache. Was it loaded in preload()?`);
+      return;
+    }
+
     const playerEntity = new PlayerEntity(playerConfig);
     const movementComponent = new MovementComponent();
     movementComponent.setPosition({ x: spawnX, y: spawnY });
@@ -136,7 +147,7 @@ export class WorldScene extends Phaser.Scene {
     const inputService = new InputService();
     inputService.initialize(this);
 
-    this.playerSprite = this.add.sprite(spawnX, spawnY, 'player-placeholder');
+    this.playerSprite = this.add.sprite(spawnX, spawnY, playerTextureKey);
     this.playerSprite.setDepth(DEPTHS.PLAYER);
 
     this.playerController = new PlayerController(
